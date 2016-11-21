@@ -2,6 +2,7 @@
 var express = require('express')
 var app = express()
 
+var fs = require('fs')
 
 var Canvas = require('canvas')
   , Image = Canvas.Image
@@ -28,7 +29,6 @@ function generateIdenticon(key) {
 
 }
 
-var fs = require('fs')
 
 
 
@@ -36,12 +36,16 @@ app.get('/:key', function (req, res) {
 
   var stream = generateIdenticon(req.params.key)
 
+  const fd = fs.openSync('../clap-photos/public/profilePic/'+req.params.key+'.png', 'w');
+
   stream.on('data', function(chunk){
     res.write(chunk);
+    fs.writeSync(fd, chunk, 0, chunk.length);
   });
 
   stream.on('end', function(){
     res.end();
+    fs.close(fd);
   });
 
 })
